@@ -4,8 +4,9 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const { engine } = require('express-handlebars');
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+var userRouter = require('./routes/user');
+var adminRouter = require('./routes/admin');
+var fileUpload = require('express-fileupload');
 
 var app = express();
 
@@ -24,9 +25,9 @@ app.engine('hbs', engine({
   layoutsDir: __dirname + '/views/layout/',
   partialsDir: __dirname + '/views/partials/'
 }));
-
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use(fileUpload());
+app.use('/', userRouter);
+app.use('/admin', adminRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

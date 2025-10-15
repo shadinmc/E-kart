@@ -29,7 +29,7 @@ router.get('/', function (req, res, next) {
       image: "https://th.bing.com/th/id/OIP.1T2suIb6elvh4sXgtKVrJQHaE8?w=235&h=150&c=6&o=7&cb=12&dpr=1.3&pid=1.7&rm=3"
     },
   ]
-  res.render('index', { products ,admin:false});
+  res.render('index', { products, admin: true });
 });
 
 module.exports = router;
