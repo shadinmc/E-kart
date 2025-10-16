@@ -1,8 +1,9 @@
 var express = require('express');
 var router = express.Router();
+var productHelpers = require('../helpers/product-helpers')
 
 /* GET users listing. */
-router.get('/', function(req, res, next) {
+router.get('/', function (req, res, next) {
   let products = [
     {
       name: "Iphone 17",
@@ -29,15 +30,33 @@ router.get('/', function(req, res, next) {
       image: "https://th.bing.com/th/id/OIP.1T2suIb6elvh4sXgtKVrJQHaE8?w=235&h=150&c=6&o=7&cb=12&dpr=1.3&pid=1.7&rm=3"
     },
   ]
-  res.render('admin/view-products',{admin:true,products});
+  res.render('admin/view-products', { admin: true, products });
 });
-router.get('/add-product',function(req,res){
+router.get('/add-product', function (req, res) {
   res.render('admin/add-product')
 
 })
-router.post('/add-product',(req,res)=>{
-  console.log(req.body)
-  console.log(req.files.image)
-})
+router.post('/add-product', (req, res) => {
 
+  productHelpers.addProduct(req.body, (id) => {
+    let image = req.files.image
+    console.log(id)
+    image.mv('./public/product-images/'+ id +'.jpg', (err, done) => {
+      if (!err) {
+        res.render('admin/add-product')
+      }
+      else{
+        console.log(err);
+      }
+    })
+
+  });
+});
+
+/*router.post('/add-product', (req, res) => {
+  console.log("Files received:", req.files)
+  console.log("Body received:", req.body)
+  res.send("Check your console")
+})
+*/
 module.exports = router;
