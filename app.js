@@ -25,15 +25,20 @@ app.engine('hbs', engine({
   extname: 'hbs',
   defaultLayout: 'layout',
   layoutsDir: __dirname + '/views/layout/',
-  partialsDir: __dirname + '/views/partials/'
+  partialsDir: __dirname + '/views/partials/',
+  helpers: {
+    inc: value => parseInt(value) + 1
+  }
 }));
-
+app.use(express.static(path.join(__dirname, 'public')));
 db.connect((err) => {
   if (err) console.log("Database not connected");
   else console.log("Database connected");
 
   
 });
+
+
 app.use(fileUpload());
 app.use('/', userRouter);
 app.use('/admin', adminRouter);
