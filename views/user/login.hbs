@@ -4,7 +4,10 @@
                <h2 class="text-center">Login</h2>
 
 
-               <form>
+               <form action="/login" method="post">
+               {{#if loginErr}}
+                    <p class="error">{{loginErr}}</p>
+               {{/if}}
                      <div class="form-group">
                          <label for="exampleInputEmail1">Email address</label>
                          <input type="email" class="form-control" id="exampleInputEmail1" name="Email"
@@ -15,7 +18,7 @@
                          <input type="password" class="form-control" id="exampleInputPassword1" name="Password" placeholder="Password">
                     </div>
                     <a href="/signup">Create New Account ?</a>
-                    <button type="submit" class="btn btn-primary float-right">Signup</button>
+                    <button type="submit" class="btn btn-primary float-right">Login</button>
                </form>
           </div>
      </div>
