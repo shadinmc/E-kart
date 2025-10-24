@@ -19,7 +19,6 @@ router.post('/add-product', (req, res) => {
 
   productHelpers.addProduct(req.body, (id) => {
     let image = req.files.image
-    console.log(id)
     image.mv('./public/product-images/' + id + '.jpg', (err, done) => {
       if (!err) {
         res.render('admin/add-product')
@@ -46,11 +45,25 @@ router.get('/edit-product/:id', async (req, res)=>{
   console.log(product)
   res.render('admin/edit-product',{product})
 })
-router.post('/edit-product/:id', (req, res) => {
-  productHelpers.updateProduct(req.params.id,req.body).then(()=>{
-  res.redirect('/admin')
-  })
-})
+router.post('/edit-product/:id', async (req, res) => {
+  try {
+    await productHelpers.updateProduct(req.params.id, req.body);
+
+    // Check if a new image is uploaded
+    if (req.files && req.files.image) {
+      let image = req.files.image;
+      await image.mv('./public/product-images/' + req.params.id + '.jpg');
+    } else {
+      console.log(' No new image uploaded, keeping existing one.');
+    }
+
+    res.redirect('/admin');
+  } catch (err) {
+    console.error(' Error while updating product:', err);
+    res.status(500).send('Error updating product.');
+  }
+});
+
 
 
 module.exports = router;

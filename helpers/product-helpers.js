@@ -26,23 +26,24 @@ module.exports = {
       });
     });
   },
-  getProductDetails:(prodId)=>{
-    return new Promise((resolve,reject)=>{
-      db.get().collection(collection.PRODUCT_COLLECTION).findOne({_id:new objectid(prodId)}).then((product)=>{
+  getProductDetails: (prodId) => {
+    return new Promise((resolve, reject) => {
+      db.get().collection(collection.PRODUCT_COLLECTION).findOne({ _id: new objectid(prodId) }).then((product) => {
         resolve(product)
       })
     })
   },
-  updateProduct:(prodId,proDetails)=>{
-    return new Promise((resolve,reject)=>{
-      db.get().collection(collection.PRODUCT_COLLECTION).updateOne({_id:new objectid(prodId)},{
-      $set:{Name:proDetails.Name,
-      Description:proDetails.Description,
-      Price:proDetails.Price,
-      Category:proDetails.Category
-    }
-  }).then((response)=>{
-    resolve()
+  updateProduct: (prodId, proDetails) => {
+    return new Promise((resolve, reject) => {
+      db.get().collection(collection.PRODUCT_COLLECTION).updateOne({ _id: new objectid(prodId) }, {
+        $set: {
+          Name: proDetails.Name,
+          Description: proDetails.Description,
+          Price: proDetails.Price,
+          Category: proDetails.Category
+        }
+      }).then((response) => {
+        resolve()
       })
     })
   }
