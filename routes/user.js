@@ -71,26 +71,33 @@ router.get('/add-to-cart/:id',(req,res)=>{
     res.json({status:true})
   })
 })
+
+router.post('/remove-product', (req, res) => {
+  userHelpers.removeProduct(req.body).then(() => {
+    res.json({ status: true });
+  });
+});
 router.post('/change-product-quantity', async (req, res) => {
-  const { productId, change } = req.body;
-  const userId = req.session.user._id;
-  const count = parseInt(change);
+  const { cart, product, count } = req.body;
+  await userHelpers.changeProductQuantity(req.body);
 
-  const result = await userHelpers.changeProductQuantity(userId, productId, count);
-  const cartCount = await userHelpers.getCartCount(userId);
+  // 🧮 get the updated cart to fetch latest quantity + total
+  const cartDetails = await userHelpers.getCartProducts(cart);
+  const productData = cartDetails.find(p => p.product._id.toString() === product);
 
-  res.json({ removeProduct: result.removeProduct, cartCount });
-});
+  const total = await userHelpers.getCartCount(cart);
 
-router.post('/remove-product', async (req, res) => {
-  const { productId } = req.body;
-  const userId = req.session.user._id;
-
-  await userHelpers.removeProductFromCart(userId, productId);
-  const cartCount = await userHelpers.getCartCount(userId);
-
-  res.json({ status: true, cartCount });
+  res.json({
+    status: true,
+    updatedQuantity: product.quantity,
+    total: total
+  });
 });
 
 
+// router.post('/change-product-quantity',(req,res,next)=>{
+//   userHelpers.changeProductQuantity(req.body).then(()=>{
+//     res.json({status:true})
+//   })
+// })
 module.exports = router;
