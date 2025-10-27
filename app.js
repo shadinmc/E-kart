@@ -29,9 +29,15 @@ app.engine('hbs', engine({
   layoutsDir: __dirname + '/views/layout/',
   partialsDir: __dirname + '/views/partials/',
   helpers: {
-    inc: value => parseInt(value) + 1
+    inc: value => parseInt(value) + 1,
+
+    // 👇 add this helper
+    ifEquals: function (a, b, options) {
+      return a === b ? options.fn(this) : options.inverse(this);
+    }
   }
 }));
+
 app.use(express.static(path.join(__dirname, 'public')));
 db.connect((err) => {
   if (err) console.log("Database not connected");

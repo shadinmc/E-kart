@@ -1,126 +1,85 @@
 <section>
-     <div class="container">
-          <table class="table mt-5">
-               <thead>
-                    <tr>
-                         <th scope="col">Item</th>
-                         <th scope="col">Title</th>
-                         <th scope="col">Price</th>
-                         <th scope="col">Quantity</th>
-                         
-                    </tr>
-               </thead>
-               <tbody>
-                    {{#each products}}
-                    <tr id="row-{{this.product._id}}">
-                         <td><img style="width:70px ; height:70px" src="/product-images/{{this.product._id}}.jpg"
-                                   alt=""></td>
-                         <td>{{this.product.Name}} </td>
-                         <td id="total-{{this.product._id}}">Rs {{this.totalPrice}} </td>
-                         <td>
-                              <button id="minus-{{this.product._id}}" class="cart-item-count mr-3"
-                                   onclick="changeQuantity('{{this._id}}','{{this.product._id}}',-1)">-</button>
+  <div class="container">
+    <table class="table mt-5">
+      <thead>
+        <tr>
+          <th scope="col">Item</th>
+          <th scope="col">Title</th>
+          <th scope="col">Price</th>
+          <th scope="col">Quantity</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each products}}
+        <tr id="row-{{this.product._id}}">
+          <td><img style="width:70px; height:70px" src="/product-images/{{this.product._id}}.jpg" alt=""></td>
+          <td>{{this.product.Name}}</td>
+          <td id="total-{{this.product._id}}">Rs {{this.totalPrice}}</td>
+          <td>
+            <button class="cart-item-count mr-3"
+              onclick="changeQuantity('{{this._id}}','{{this.product._id}}','{{this.product.Price}}',-1)">-</button>
 
-                              <span id="qty-{{this.product._id}}">{{this.quantity}}</span>
+            <span id="qty-{{this.product._id}}">{{this.quantity}}</span>
 
-                              <button id="plus-{{this.product._id}}" class="cart-item-count ml-3"
-                                   onclick="changeQuantity('{{this._id}}','{{this.product._id}}',1)">+</button>
-                         </td>
-                         <td>
-                              <button class="btn btn-danger"
-                                   onclick="removeProduct('{{this._id}}','{{this.product._id}}')">
-                                   Remove
-                              </button>
-                         </td>
-                    </tr>
-                    {{/each}}
-               </tbody>
-          </table>
-          <hr>
-          <div class="float-right pr-5">
-          <h5 class="float-right mr-5" >Total:5000 </h5>
-          <a href="/place-order" class="btn btn-success mt-5 ml-5" style="width:1oo%;"><b>Place Order</b> </a>
-     </div>
+            <button class="cart-item-count ml-3"
+              onclick="changeQuantity('{{this._id}}','{{this.product._id}}','{{this.product.Price}}',1)">+</button>
+          </td>
+          <td>
+            <button class="btn btn-danger" onclick="removeProduct('{{this._id}}','{{this.product._id}}')">
+              Remove
+            </button>
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+    <hr>
+    <div class="float-right pr-5">
+      <h3>Grand Total: Rs <span id="grand-total">{{grandTotal}}</span></h3>
+      <a href="/place-order" class="btn btn-success mt-3" style="width:100%;"><b>Place Order</b></a>
+    </div>
+  </div>
 </section>
 
 <script>
-                document.getElementById(`total-${proId}`).innerText = `Rs ${response.newTotal}`;
-
-  // helper: safely parse int from span
-  function getQty(proId) {
-    const val = $('#qty-' + proId).text();
-    return isNaN(parseInt(val)) ? 0 : parseInt(val);
+  // Helper function to recalc grand total
+  function updateGrandTotal() {
+    let grandTotal = 0;
+    document.querySelectorAll('[id^="total-"]').forEach(el => {
+      let val = parseFloat(el.innerText.replace('Rs ', '')) || 0;
+      grandTotal += val;
+    });
+    document.getElementById('grand-total').innerText = grandTotal.toFixed(2);
   }
 
-  function changeQuantity(cartId, proId, count) {
-    const qtyElem = $('#qty-' + proId);
-    const minusBtn = $('#minus-' + proId);
+  function changeQuantity(cartId, proId, price, count) {
+    price = parseFloat(price);
+    let qtyEl = document.getElementById(`qty-${proId}`);
+    let quantity = parseInt(qtyEl.innerText);
+    quantity += parseInt(count);
 
-    // read current from DOM
-    const currentQty = getQty(proId);
-    const newQty = currentQty + count;
+    if (quantity < 0) quantity = 0; // prevent negative quantities
+    qtyEl.innerText = quantity;
 
-    // prevent going below 1
-    if (newQty < 1) return;
+    let totalEl = document.getElementById(`total-${proId}`);
+    totalEl.innerText = `Rs ${(quantity * price).toFixed(2)}`;
 
-    // Optimistic UI update
-    qtyElem.text(newQty);
-    if (newQty <= 1) minusBtn.prop('disabled', true); else minusBtn.prop('disabled', false);
+    updateGrandTotal();
 
-    // send request
-    $.ajax({
-      url: '/change-product-quantity',
-      method: 'post',
-      data: { cart: cartId, product: proId, count: count },
-      success: (response) => {
-           document.getElementById(`total-${proId}`).innerText = `Rs ${response.newTotal}`;
-        if (!response || !response.status) {
-          // rollback if server says no
-          qtyElem.text(currentQty);
-          if (currentQty <= 1) minusBtn.prop('disabled', true); else minusBtn.prop('disabled', false);
-          console.error('Server rejected update:', response);
-          alert('Could not update quantity. Try again.');
-        } else {
-          // If you want to trust server more, you can use server-sent updatedQuantity:
-          // if(response.updatedQuantity) qtyElem.text(response.updatedQuantity)
-        }
-      },
-      error: (err) => {
-        // rollback on error
-        qtyElem.text(currentQty);
-        if (currentQty <= 1) minusBtn.prop('disabled', true); else minusBtn.prop('disabled', false);
-        console.error('AJAX error:', err);
-        alert('Network error. Try again.');
-      }
-    });
+    // optional: send ajax to update backend asynchronously
+    $.post('/change-product-quantity', { cart: cartId, product: proId, count: count, quantity: quantity });
   }
 
   function removeProduct(cartId, proId) {
-    // optimistic UI remove
     const $row = $('#row-' + proId);
-    const backupHtml = $row.prop('outerHTML');
-    alert("product will be removed") 
     $row.remove();
+    updateGrandTotal();
 
-    $.ajax({
-      url: '/remove-product',
-      type: 'post',
-      data: { cart: cartId, product: proId },
-      success: (response) => {
-        if (!response || !response.status) {
-          // rollback if something went wrong
-          console.error('Server failed to remove product:', response);
-          // put the row back (simple rollback)
-          $('#cart-table tbody').append(backupHtml); // adjust selector to match your table wrapper
-          alert('Could not remove product. Try again.');
-        }
-      },
-      error: (err) => {
-        // rollback on network error
-        console.error('AJAX error while removing:', err);
-        $('#cart-table tbody').append(backupHtml); // adjust selector to match your table wrapper
-        alert('Network error. Try again.');
-      }
-    });
+    // optional: notify backend
+    $.post('/remove-product', { cart: cartId, product: proId });
   }
+
+  // recalc grand total on page load just in case
+  updateGrandTotal();
 </script>
