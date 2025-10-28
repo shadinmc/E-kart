@@ -105,15 +105,19 @@ router.post('/place-order', verifyLogin, async (req, res) => {
 
     if (req.body['paymentMethod'] === 'cod') {
       await userHelpers.deleteCart(userId);
-      return res.redirect('/order-success');
+      return res.json({ codSuccess: true });
     } else {
-      userHelpers.generateRazorPay(orderId, total).then((response)=>{
-        res.json(response)
-      })
+      const razorpayOrder = await userHelpers.generateRazorPay(orderId, total);
+      res.json({
+        onlinePayment: true,
+        orderId: orderId,
+        razorpayOrder,
+      });
+    }
       
         
     }
-  } );
+   );
 
 router.get('/order-success', (req, res) => {
   res.render('user/order-success', { user: req.session.user })
@@ -121,7 +125,6 @@ router.get('/order-success', (req, res) => {
 router.get('/orders', verifyLogin, async (req, res) => {
   let userId = req.session.user._id
   let orders = await userHelpers.getUserOrders(userId)
-  console.log('Fetched Orders:', orders);
   res.render('user/orders', { user: req.session.user._id, orders })
 })
 router.get('/order-details/:id', verifyLogin, async (req, res) => {
@@ -134,6 +137,9 @@ router.get('/order-details/:id', verifyLogin, async (req, res) => {
     res.status(500).send('Error loading order details');
   }
 });
+router.post('/verify-payment',(req,res)=>{
+  console.log(req.body)
+})
 
 
 module.exports = router;

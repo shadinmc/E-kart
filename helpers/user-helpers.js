@@ -256,7 +256,7 @@ module.exports = {
   generateRazorPay: (orderId,total) => {
     return new  Promise((resolve,reject)=>{
     var options = {
-      amount: total,  // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+      amount: total * 100,  // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
       currency: "INR",
       receipt: orderId
     };
