@@ -1,0 +1,27 @@
+<div class="container text-center mt-5">
+  <div class="card shadow p-5">
+    <h2 class="text-success mb-3">✅ Order Placed Successfully!</h2>
+    <p>Thank you for shopping with us, {{user.Name}}.</p>
+    <p>Your order has been received and is being processed.</p>
+
+    <div class="mt-4">
+      <a href="/orders" class="btn btn-outline-primary me-3">View My Orders</a>
+      <a href="/" class="btn btn-outline-secondary">Back to Home</a>
+    </div>
+
+    <p class="mt-4 text-muted">You’ll be redirected in <span id="timer">6</span> seconds...</p>
+  </div>
+</div>
+
+<script>
+  let counter = 6;
+  const timer = document.getElementById("timer");
+  setInterval(() => {
+    counter--;
+    if (counter <= 0) {
+      window.location.href = '/orders';
+    } else {
+      timer.innerText = counter;
+    }
+  }, 1000);
+</script>

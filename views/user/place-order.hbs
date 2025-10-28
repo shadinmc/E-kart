@@ -1,13 +1,20 @@
 <<div class="container mt-5">
   <h2 class="mb-4">Place Your Order</h2>
 
-  <form id="placeOrderForm" method="POST" action="/place-order">
+  <form id="check-out-form" method="POST" action="/place-order">
 
     <!-- Address -->
     <div class="mb-3">
       <label for="address" class="form-label">Address</label>
       <textarea class="form-control" id="address" name="address" rows="3" placeholder="Enter your address"
         required>{{user.address}}</textarea>
+    </div>
+
+    <!-- PIN Code -->
+    <div class="mb-3">
+      <label for="pincode" class="form-label">PIN Code</label>
+      <input type="tel" class="form-control" id="pincode" name="pincode" placeholder="Enter 6-digit PIN code" required
+        pattern="[0-9]{6}" maxlength="6" value="{{user.pincode}}" title="Enter a 6-digit PIN code">
     </div>
 
     <!-- Phone Number -->
@@ -39,13 +46,13 @@
       </div>
     </div>
     <div class="mb-3">
-<h4>
-  Total Amount to Pay: ₹ 
-  <span style="font-size: 2rem; font-family: Impact, Charcoal, sans-serif;
+      <h4>
+        Total Amount to Pay: ₹
+        <span style="font-size: 2rem; font-family: Impact, Charcoal, sans-serif;
 ; color: #d90303;">
-    {{total}}
-  </span>
-</h4>
+          {{total}}
+        </span>
+      </h4>
     </div>
     <!-- Place Order Button -->
     <button type="submit" class="btn btn-primary">Place Order</button>

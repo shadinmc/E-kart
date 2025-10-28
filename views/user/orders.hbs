@@ -1,0 +1,33 @@
+<div class="container mt-5">
+  <h2 class="mb-4 text-center">🛍️ My Orders</h2>
+
+  {{#if orders.length}}
+  <div class="row">
+    {{#each orders}}
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="card shadow-sm p-3">
+        <h5>Order ID: {{this._id}}</h5>
+        <p><strong>Date:</strong> {{this.date}}</p>
+        <p><strong>Status:</strong> 
+          <span class="badge {{#ifEquals this.status 'Placed'}}bg-success{{else}}bg-warning{{/ifEquals}}">
+            {{this.status}}
+          </span>
+        </p>
+        <p><strong>Total:</strong> ₹{{this.totalAmount}}</p>
+        <p><strong>Delivery:</strong> Expected in 4–6 days</p>
+
+        <button class="btn btn-sm btn-outline-info" 
+                onclick="window.location.href='/order-details/{{this._id}}'">
+          View Details
+        </button>
+      </div>
+    </div>
+    {{/each}}
+  </div>
+  {{else}}
+  <div class="text-center">
+    <h4>No orders yet 😔</h4>
+    <a href="/" class="btn btn-primary mt-3">Shop Now</a>
+  </div>
+  {{/if}}
+</div>
