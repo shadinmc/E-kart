@@ -5,7 +5,7 @@ var userHelpers = require('../helpers/user-helpers');
 const { response } = require('../app');
 
 const verifyLogin = (req, res, next) => {
-  if (req.session.loggedIn) {
+  if (req.session.userLoggedIn) {
     next()
   } else {
     res.redirect('/login')
@@ -25,11 +25,11 @@ router.get('/', async function (req, res, next) {
 })
 router.get('/login', (req, res) => {
   res.set('Cache-Control', 'no-store');
-  if (req.session.loggedIn) {
+  if (req.session.user) {
     res.redirect('/')
   } else {
-    res.render('user/login', { "loginErr": req.session.loginErr })
-    req.session.loginErr = false
+    res.render('user/login', { "loginErr": req.session.userLoginErr })
+    req.session.userLoginErr = false
   }
 });
 
@@ -37,8 +37,8 @@ router.get('/login', (req, res) => {
 router.post('/signup', (req, res) => {
   userHelpers.doSignup(req.body).then((response) => {
     console.log("User signed up successfully:", response);
-    req.session.loggedIn = true
     req.session.user = response
+    req.session.userLoggedIn = true
     res.redirect('/');
   }).catch((err) => {
     console.error("Signup failed:", err);
@@ -48,17 +48,19 @@ router.post('/signup', (req, res) => {
 router.post('/login', (req, res) => {
   userHelpers.doLogin(req.body).then((response) => {
     if (response.status) {
-      req.session.loggedIn = true
       req.session.user = response.user
+      req.session.userLoggedIn = true
       res.redirect('/');
     } else {
-      req.session.loginErr = "Invalid Username or Password"
+      req.session.userLoginErr = "Invalid Username or Password"
       res.redirect('/login');
     }
   })
 });
 router.get('/logout', (req, res) => {
-  req.session.destroy()
+  req.session.user=null
+  req.session.userLoggedIn=false
+
   res.redirect('/')
 
 })
@@ -118,7 +120,7 @@ router.post('/place-order', verifyLogin, async (req, res) => {
 }
 );
 
-router.get('/order-success',verifyLogin, async(req, res) => {
+router.get('/order-success', verifyLogin, async (req, res) => {
   const userId = req.session.user._id
   await userHelpers.deleteCart(userId)
   res.render('user/order-success', { user: req.session.user })
