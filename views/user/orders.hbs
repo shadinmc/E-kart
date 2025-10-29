@@ -8,16 +8,18 @@
       <div class="card shadow-sm p-3">
         <h5>Order ID: {{this._id}}</h5>
         <p><strong>Date:</strong> {{this.date}}</p>
-        <p><strong>Status:</strong> 
-          <span class="badge {{#ifEquals this.status 'Placed'}}bg-success{{else}}bg-warning{{/ifEquals}}">
+        <p><strong>Status:</strong>
+          <span class="badge 
+  {{#ifEquals this.status 'placed'}}bg-success
+  {{else ifEquals this.status 'pending'}}bg-warning
+  {{else}}bg-secondary{{/ifEquals}}">
             {{this.status}}
           </span>
         </p>
         <p><strong>Total:</strong> ₹{{this.totalAmount}}</p>
         <p><strong>Delivery:</strong> Expected in 4–6 days</p>
 
-        <button class="btn btn-sm btn-outline-info" 
-                onclick="window.location.href='/order-details/{{this._id}}'">
+        <button class="btn btn-sm btn-outline-info" onclick="window.location.href='/order-details/{{this._id}}'">
           View Details
         </button>
       </div>

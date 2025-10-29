@@ -96,30 +96,31 @@ router.get('/place-order', verifyLogin, async (req, res) => {
   res.render('user/place-order', { total })
 })
 router.post('/place-order', verifyLogin, async (req, res) => {
-    const userId = req.session.user._id;
-    const products = await userHelpers.getCartProducts(userId);
-    const total = await userHelpers.getTotalAmount(userId);
+  const userId = req.session.user._id;
+  const products = await userHelpers.getCartProducts(userId);
+  const total = await userHelpers.getTotalAmount(userId);
 
-    // Create the order once
-    const orderId = await userHelpers.placeOrder({ ...req.body, userId }, products, total);
+  // Create the order once
+  const orderId = await userHelpers.placeOrder({ ...req.body, userId }, products, total);
 
-    if (req.body['paymentMethod'] === 'cod') {
-      await userHelpers.deleteCart(userId);
-      return res.json({ codSuccess: true });
-    } else {
-      const razorpayOrder = await userHelpers.generateRazorPay(orderId, total);
-      res.json({
-        onlinePayment: true,
-        orderId: orderId,
-        razorpayOrder,
-      });
-    }
-      
-        
-    }
-   );
+  if (req.body['paymentMethod'] === 'cod') {
+    return res.json({ onlinePayment: false });
+  } else {
+    const razorpayOrder = await userHelpers.generateRazorPay(orderId, total);
+    res.json({
+      onlinePayment: true,
+      orderId: orderId,
+      razorpayOrder,
+    });
+  }
 
-router.get('/order-success', (req, res) => {
+
+}
+);
+
+router.get('/order-success',verifyLogin, async(req, res) => {
+  const userId = req.session.user._id
+  await userHelpers.deleteCart(userId)
   res.render('user/order-success', { user: req.session.user })
 })
 router.get('/orders', verifyLogin, async (req, res) => {
@@ -137,8 +138,16 @@ router.get('/order-details/:id', verifyLogin, async (req, res) => {
     res.status(500).send('Error loading order details');
   }
 });
-router.post('/verify-payment',(req,res)=>{
+router.post('/verify-payment', (req, res) => {
   console.log(req.body)
+  userHelpers.verifyPayment(req.body).then(() => {
+    userHelpers.changePaymentStatus(req.body['order[receipt]']).then(() => {
+      res.json({ status: true })
+    })
+  }).catch((err) => {
+    console.log(err)
+    res.json({ status: false })
+  })
 })
 
 
